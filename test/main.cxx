@@ -4,9 +4,11 @@
 #include <detour.hxx>
 
 int main() {
-    using Hooks = DetourGroup<Detour<decltype(std::putchar), std::putchar>>;
+    using Hooks = DetourGroup<Detour<decltype(std::putchar), std::putchar>, //
+                              Detour<decltype(std::putc), std::putc>>;
+
     Hooks::tap([](auto original, auto&&... args) {
-        std::puts("putchar called!");
+        std::puts("putc{,har} called!");
         return original(std::forward<decltype(args)>(args)...);
     });
 
