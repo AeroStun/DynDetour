@@ -20,7 +20,7 @@
 #include <functional>
 #include <utility>
 
-#include <dlhook.hxx>
+#include <dlhook.h>
 
 namespace impl {
 
