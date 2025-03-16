@@ -1,0 +1,42 @@
+name: Build & Test
+on: [push, pull_request]
+jobs:
+  build-ubuntu:
+    name: DynDetour - Ubuntu (${{ matrix.compiler.name }} | ${{ matrix.build_type }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type:
+          - Debug
+          - Release
+          - MinSizeRel
+          - RelWithDebInfo
+        compiler:
+          - name: GCC
+            c: gcc
+            cxx: g++
+          - name: Clang/LLVM
+            c: clang
+            cxx: clang++
+    env:
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cxx }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check deps
+        run: |
+          sudo apt install ninja-build
+          ninja --version
+          cmake --version
+      - name: CMake configure
+        run: |
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -S ./ -B ./build
+      - name: CMake build
+        run: cmake --build ./build
+      - name: Build & Run tests
+        run: |
+          cmake --build ./build
+          (cd build/test/; ctest --output-on-failure)
